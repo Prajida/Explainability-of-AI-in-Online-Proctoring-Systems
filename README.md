@@ -64,8 +64,8 @@ Before running this project, ensure you have the following installed:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/shreeram312/AI-Proctored-System.git
-   cd AI-Proctored-System
+   git clone https://github.com/Prajida/Explainability-of-AI-in-Online-Proctoring-Systems.git
+   cd Explainability-of-AI-in-Online-Proctoring-Systems
    ```
 
 2. **Install root dependencies**
@@ -206,32 +206,6 @@ The system uses JWT (JSON Web Tokens) for authentication. Users must register/lo
 - `POST /api/cheating-logs` - Log violation
 - `GET /api/cheating-logs/exam/:examId` - Get violations for exam
 - `GET /api/cheating-logs/student/:studentId` - Get student violations
-
-## 🌐 Deployment
-
-The frontend is configured for deployment on Vercel. The backend can be deployed on platforms like:
-- Heroku
-- Railway
-- AWS
-- DigitalOcean
-
-Make sure to update CORS settings and environment variables for production.
-
-## 📄 License
-
-This project is licensed under the ISC License.
-
-## 👥 Contributors
-
-- [Your Name/Team]
-
-## 📞 Support
-
-For issues and questions, please open an issue on the GitHub repository.
-
-## 🔄 Version History
-
-- **v1.0.0** - Initial release with core AI proctoring features
 
 ---
 
