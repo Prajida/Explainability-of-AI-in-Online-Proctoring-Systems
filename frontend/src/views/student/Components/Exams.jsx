@@ -15,14 +15,30 @@ const Exams = () => {
   }
 
   if (isError) {
-    return <div>Error fetching exams.</div>; // You can handle errors more gracefully
+    console.error('Error fetching exams:', isError);
+    return (
+      <div>
+        <Typography color="error">Error fetching exams. Please try refreshing the page.</Typography>
+        {isError?.data?.message && (
+          <Typography variant="body2" color="error">{isError.data.message}</Typography>
+        )}
+      </div>
+    );
+  }
+
+  if (!userExams || userExams.length === 0) {
+    return (
+      <PageContainer title="Exams" description="List of exams">
+        <Typography>No exams available at the moment.</Typography>
+      </PageContainer>
+    );
   }
 
   return (
     <PageContainer title="Exams" description="List of exams">
       <Grid container spacing={3}>
         {userExams.map((exam) => (
-          <Grid item sm={6} md={4} lg={3} key={exam._id}>
+          <Grid item sm={6} md={4} lg={3} key={exam._id || exam.examId}>
             <BlankCard>
               <ExamCard exam={exam} />
             </BlankCard>

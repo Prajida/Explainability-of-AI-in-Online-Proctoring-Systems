@@ -27,23 +27,25 @@ export default function MultipleChoiceQuestion({ questions, saveUserTestScore, s
   const [isLastQuestion, setIsLastQuestion] = useState(false);
   const [isFinishTest, setisFinishTest] = useState(false);
 
+  const hasQuestions = Array.isArray(questions) && questions.length > 0;
+  const currentQuestionData = hasQuestions ? questions[currentQuestion] : null;
+  const options = currentQuestionData?.options || [];
+
   useEffect(() => {
-    setIsLastQuestion(currentQuestion === questions.length - 1);
-  }, [currentQuestion, questions.length]);
+    setIsLastQuestion(hasQuestions && currentQuestion === questions.length - 1);
+  }, [currentQuestion, hasQuestions, questions?.length]);
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
   };
 
   const handleNextQuestion = async () => {
-    let isCorrect = false;
-    const currentQuestionData = questions[currentQuestion];
+    if (!currentQuestionData) return;
 
-    if (currentQuestionData && currentQuestionData.options) {
-      const correctOption = currentQuestionData.options.find((option) => option.isCorrect);
-      if (correctOption && selectedOption) {
-        isCorrect = correctOption.id === selectedOption;
-      }
+    let isCorrect = false;
+    const correctOption = options.find((option) => option.isCorrect);
+    if (correctOption && selectedOption) {
+      isCorrect = correctOption.id === selectedOption || correctOption._id === selectedOption;
     }
 
     // Add answer to answers Map
@@ -88,12 +90,37 @@ export default function MultipleChoiceQuestion({ questions, saveUserTestScore, s
     }
 
     setSelectedOption(null);
-    if (currentQuestion < questions.length - 1) {
+    if (hasQuestions && currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       setisFinishTest(true);
     }
   };
+
+  if (!hasQuestions) {
+    return (
+      <Card style={{ width: '50%', boxShadow: '2px' }}>
+        <CardContent>
+          <Typography variant="body1" color="error" gutterBottom>
+            No questions available for this exam.
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
+            This exam may not have any questions added yet, or there may be a mismatch with the exam ID.
+            <br />
+            Please contact your teacher if you believe this is an error.
+          </Typography>
+          {examId && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+              Exam ID: {examId}
+            </Typography>
+          )}
+          <Box mt={2}>
+            <Button variant="contained" onClick={submitTest}>Continue</Button>
+          </Box>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card
@@ -114,7 +141,7 @@ export default function MultipleChoiceQuestion({ questions, saveUserTestScore, s
           Question {currentQuestion + 1}:
         </Typography>
         <Typography variant="body1" mb={3}>
-          {questions[currentQuestion].question}
+          {currentQuestionData?.question || '—'}
         </Typography>
         <Box mb={10}>
           <FormControl component="fieldset">
@@ -124,7 +151,7 @@ export default function MultipleChoiceQuestion({ questions, saveUserTestScore, s
               value={selectedOption}
               onChange={handleOptionChange}
             >
-              {questions[currentQuestion].options.map((option) => (
+              {options.map((option) => (
                 <FormControlLabel
                   key={option._id}
                   value={option._id}
@@ -143,7 +170,7 @@ export default function MultipleChoiceQuestion({ questions, saveUserTestScore, s
             disabled={selectedOption === null}
             style={{ marginLeft: 'auto' }}
           >
-            {isLastQuestion ? 'Proceed to Coding' : 'Next Question'}
+            {isLastQuestion ? 'Submit Exam' : 'Next Question'}
           </Button>
         </Stack>
       </CardContent>

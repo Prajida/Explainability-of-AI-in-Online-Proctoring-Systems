@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Grid, CircularProgress } from '@mui/material';
-import PageContainer from 'src/components/container/PageContainer';
-import BlankCard from 'src/components/shared/BlankCard';
-import MultipleChoiceQuestion from './Components/MultipleChoiceQuestion';
-import NumberOfQuestions from './Components/NumberOfQuestions';
-import WebCam from './Components/WebCam';
-import { useGetExamsQuery, useGetQuestionsQuery } from '../../slices/examApiSlice';
-import { useSaveCheatingLogMutation } from 'src/slices/cheatingLogApiSlice';
-import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import { useCheatingLog } from 'src/context/CheatingLogContext';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Box, Grid, CircularProgress } from "@mui/material";
+import PageContainer from "src/components/container/PageContainer";
+import BlankCard from "src/components/shared/BlankCard";
+import MultipleChoiceQuestion from "./Components/MultipleChoiceQuestion";
+import NumberOfQuestions from "./Components/NumberOfQuestions";
+import WebCam from "./Components/WebCam";
+import BrowserMonitor from "./Components/BrowserMonitor";
+import { useGetExamsQuery, useGetQuestionsQuery } from "../../slices/examApiSlice";
+import { useSaveCheatingLogMutation } from "src/slices/cheatingLogApiSlice";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useCheatingLog } from "src/context/CheatingLogContext";
 
 const TestPage = () => {
   const { examId, testId } = useParams();
@@ -23,77 +24,89 @@ const TestPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMcqCompleted, setIsMcqCompleted] = useState(false);
 
+  // Ensure examId is set in cheating log
+  useEffect(() => {
+    if (examId) {
+      updateCheatingLog({ examId });
+    }
+  }, [examId]);
+
+  // Auto-save cheating log every 15 seconds
+  useEffect(() => {
+    const id = setInterval(async () => {
+      try {
+        await saveCheatingLogMutation(cheatingLog);
+      } catch (e) {
+        // ignore transient errors
+      }
+    }, 15000);
+    return () => clearInterval(id);
+  }, [cheatingLog]);
+
   useEffect(() => {
     if (userExamdata) {
       const exam = userExamdata.find((exam) => exam.examId === examId);
       if (exam) {
         setSelectedExam(exam);
-        // Convert duration from minutes to seconds
         setExamDurationInSeconds(exam.duration);
-        console.log('Exam duration (minutes):', exam.duration);
+        console.log("Exam duration (minutes):", exam.duration);
       }
     }
   }, [userExamdata, examId]);
 
   const [questions, setQuestions] = useState([]);
-  const { data, isLoading } = useGetQuestionsQuery(examId);
+  const { data, isLoading, error } = useGetQuestionsQuery(examId);
   const [score, setScore] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (data) {
+    console.log("TestPage - examId:", examId);
+    console.log("TestPage - Questions data:", data);
+    console.log("TestPage - Questions error:", error);
+    
+    if (Array.isArray(data)) {
+      console.log("TestPage - Setting questions (array):", data.length);
       setQuestions(data);
+    } else if (data && Array.isArray(data.data)) {
+      // handle shape { success, data: [...] }
+      console.log("TestPage - Setting questions (nested):", data.data.length);
+      setQuestions(data.data);
+    } else {
+      console.log("TestPage - No questions found, setting empty array");
+      setQuestions([]);
     }
-  }, [data]);
+  }, [data, examId, error]);
 
   const handleMcqCompletion = () => {
     setIsMcqCompleted(true);
-    // Reset cheating log for coding exam
-    resetCheatingLog(examId);
-    navigate(`/exam/${examId}/codedetails`);
   };
 
   const handleTestSubmission = async () => {
-    if (isSubmitting) return; // Prevent multiple submissions
-
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-
-      // Make sure we have the latest user info in the log
-      const updatedLog = {
-        ...cheatingLog,
-        username: userInfo.name,
-        email: userInfo.email,
-        examId: examId,
-        noFaceCount: parseInt(cheatingLog.noFaceCount) || 0,
-        multipleFaceCount: parseInt(cheatingLog.multipleFaceCount) || 0,
-        cellPhoneCount: parseInt(cheatingLog.cellPhoneCount) || 0,
-        prohibitedObjectCount: parseInt(cheatingLog.prohibitedObjectCount) || 0,
-      };
-
-      console.log('Submitting cheating log:', updatedLog);
-
-      // Save the cheating log
-      const result = await saveCheatingLogMutation(updatedLog).unwrap();
-      console.log('Cheating log saved:', result);
-
-      toast.success('Test submitted successfully!');
-      navigate('/Success');
+      await saveCheatingLogMutation(cheatingLog);
+      toast.success("Exam submitted successfully!");
+      navigate("/result");
     } catch (error) {
-      console.error('Error saving cheating log:', error);
-      toast.error(
-        error?.data?.message || error?.message || 'Failed to save test logs. Please try again.',
-      );
+      console.error("Error submitting exam:", error);
+      toast.error("Failed to submit exam");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const saveUserTestScore = () => {
-    setScore(score + 1);
+  const saveUserTestScore = (score) => {
+    setScore(score);
   };
 
-  if (isExamsLoading) {
+  const handleBrowserViolation = (violationType) => {
+    console.log("Browser violation detected:", violationType);
+    // Additional handling can be added here
+  };
+
+  if (isExamsLoading || isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
         <CircularProgress />
@@ -121,7 +134,7 @@ const TestPage = () => {
                 ) : (
                   <MultipleChoiceQuestion
                     submitTest={isMcqCompleted ? handleTestSubmission : handleMcqCompletion}
-                    questions={data}
+                    questions={questions}
                     saveUserTestScore={saveUserTestScore}
                   />
                 )}
@@ -135,12 +148,12 @@ const TestPage = () => {
                   <Box
                     maxHeight="300px"
                     sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'start',
-                      justifyContent: 'center',
-                      overflowY: 'auto',
-                      height: '100%',
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "start",
+                      justifyContent: "center",
+                      overflowY: "auto",
+                      height: "100%",
                     }}
                   >
                     <NumberOfQuestions
@@ -162,9 +175,16 @@ const TestPage = () => {
                     alignItems="start"
                     justifyContent="center"
                   >
-                    <WebCam cheatingLog={cheatingLog} updateCheatingLog={updateCheatingLog} />
+                    <WebCam cheatingLog={cheatingLog} updateCheatingLog={updateCheatingLog} examId={examId} />
                   </Box>
                 </BlankCard>
+              </Grid>
+              <Grid item xs={12}>
+                <BrowserMonitor 
+                  examId={examId} 
+                  onViolationDetected={handleBrowserViolation}
+                  showViolationCounts={false}  // Hide counts during exam
+                />
               </Grid>
             </Grid>
           </Grid>

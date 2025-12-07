@@ -8,6 +8,7 @@ const questionSchema = mongoose.Schema(
     },
     options: [
       {
+        _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
         optionText: {
           type: String,
           required: true,
@@ -33,6 +34,9 @@ const questionSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Add index on examId for faster queries
+questionSchema.index({ examId: 1 });
 
 const Question = mongoose.model("Question", questionSchema);
 //83309

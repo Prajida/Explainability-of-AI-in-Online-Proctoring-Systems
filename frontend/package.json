@@ -1,5 +1,5 @@
 {
-  "name": "modernize",
+  "name": "AI_Evalu8",
   "version": "0.1.0",
   "devServer": {
     "hot": true
@@ -8,6 +8,9 @@
   "dependencies": {
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/drawing_utils": "^0.3.1675466124",
+    "@mediapipe/face_detection": "^0.4.1646425229",
     "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "5.11.16",
     "@mui/lab": "5.0.0-alpha.133",
@@ -28,6 +31,7 @@
     "chance": "1.1.11",
     "formik": "^2.4.4",
     "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
     "lodash": "4.17.21",
     "lucide-react": "^0.513.0",
     "prop-types": "15.8.1",

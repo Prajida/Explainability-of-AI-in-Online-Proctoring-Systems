@@ -1,0 +1,311 @@
+================================================================================
+AI-PROCTORED SYSTEM - FLOWCHARTS
+================================================================================
+
+1. AI VIOLATION DETECTION FLOWCHART (DFD Level 2)
+================================================================================
+
+                    [START]
+                      |
+                      v
+            [Initialize AI Models]
+                      |
+                      v
+            [Start Webcam]
+                      |
+                      v
+            [Frame Loop] <------------------+
+                      |                     |
+                      v                     |
+            [PROCESS FRAME]                 |
+                      |                     |
+        +-------------+-------------+-------+-------+
+        |             |             |               |
+        v             v             v               v
+  [Face Detection] [Object Detection] [Browser Events] [Voice Detection]
+        |             |             |               |
+        v             v             v               v
+  [No Face /      [Prohibited    [Tab Switch /   [Unusual Sound /
+   Multiple Faces/  Object]        Copy/Paste /    Second Person
+   Looking Away?]                  Right Click]    Voice?]
+        |             |             |               |
+        v             v             v               v
+  [→ Violation]  [→ Violation]  [→ Violation]  [→ Log Violation]
+  [+ Screenshot] [+ Screenshot] [+ Screenshot]
+        |             |             |               |
+        +-------------+-------------+---------------+
+                      |
+                      v
+            [Generate Metadata]
+            (Timestamp, Type, Confidence, Evidence)
+                      |
+                      v
+            [Send To Backend]
+                      |
+                      v
+            [Alert Student]
+                      |
+                      v
+            [Loop Back to Frame] --------+
+                      |                  |
+                      +------------------+
+
+
+================================================================================
+2. VIOLATION DETECTED - EXPLAINABILITY PROCESS (DFD Level 2)
+================================================================================
+
+            [Violation Detected]
+                      |
+                      v
+            [Extract Metadata]
+            ├─ Timestamp
+            ├─ Violation Type
+            ├─ Confidence Score
+            └─ Visual Evidence
+                      |
+                      v
+            [Generate Reasoning]
+            ├─ Analyze violation type
+            ├─ Include confidence score
+            ├─ Add contextual information
+            └─ Create human-readable explanation
+                      |
+                      v
+            [Annotate Screenshot]
+            ├─ Draw bounding boxes
+            ├─ Add labels
+            └─ Mark violation type
+                      |
+                      v
+            [Create Log Entry]
+            ├─ Increment violation count
+            ├─ Add screenshot to array
+            ├─ Store metadata
+            └─ Store reasoning
+                      |
+                      v
+            [Save to Database]
+                      |
+                      v
+            [Return Structured Log]
+                      |
+                      v
+            [Available for Review]
+                      |
+                      v
+                    [END]
+
+
+================================================================================
+3. TEACHER/STUDENT WORKFLOW (DFD Level 1)
+================================================================================
+
+TEACHER WORKFLOW:
+-----------------
+        [TEACHER]
+            |
+    +-------+-------+----------------+
+    |               |                |
+    v               v                v
+[Create Exams] [Manage Questions] [View Violation Logs]
+    |               |                |
+    v               |                v
+[Set Access Code]  |         [Manage Results]
+                   |
+        +-----------+----------+
+        |                      |
+        v                      v
+[Import PDF Questions]  [Add Manually]
+
+
+STUDENT WORKFLOW:
+-----------------
+        [STUDENT]
+            |
+    +-------+-------+----------------+
+    |               |                |
+    v               v                v
+[Take Exam]  [View Result]  [Verify Access Code]
+    |
+    v
+[Receive Violations Alert]
+
+
+================================================================================
+4. COMPLETE SYSTEM WORKFLOW (DFD Level 0 / Context Diagram)
+================================================================================
+
+                    [START]
+                      |
+                      v
+            [User Login/Register]
+                      |
+                      v
+            [Authenticate User]
+                      |
+        +-------------+-------------+
+        |                           |
+        v                           v
+    [TEACHER]                   [STUDENT]
+        |                           |
+        v                           v
+[Create Exam]              [View Available Exams]
+        |                           |
+        v                           v
+[Add Questions]            [Verify Access Code]
+        |                           |
+        |                           v
+        |                   [Start Exam]
+        |                           |
+        |                   +-------+-------+
+        |                   |               |
+        |                   v               v
+        |           [AI Proctoring Starts] [Answer Questions]
+        |                   |               |
+        |                   |               v
+        |                   |           [Submit Exam]
+        |                   |               |
+        |                   |               v
+        |                   |           [View Result]
+        |                   |               |
+        |                   +---------------+
+        |                           |
+        v                           |
+[Set Access Code]                  |
+        |                           |
+        v                           |
+[View Violation Logs]              |
+        |                           |
+        +---------------------------+
+                      |
+                      v
+                    [END]
+
+
+================================================================================
+5. DATA FLOW DIAGRAM - LEVEL 1 (Main Processes)
+================================================================================
+
+External Entities:
+- Student
+- Teacher
+- MongoDB Database
+- AI Models (BlazeFace, COCO-SSD)
+
+Data Stores:
+- D1: Users
+- D2: Exams
+- D3: Questions
+- D4: CheatingLogs
+- D5: Results
+- D6: ExamAttempts
+
+Processes:
+- P1: User Authentication
+- P2: Exam Management
+- P3: Question Management
+- P4: AI Proctoring
+- P5: Result Processing
+- P6: Violation Logging
+
+                    [Student] ----Exam Request----> [P1: Authentication]
+                                                           |
+                                                           | User Data
+                                                           v
+                                                       [D1: Users]
+                                                           |
+                                                           | Valid User
+                                                           v
+                    [Teacher] ----Create Exam----> [P2: Exam Management]
+                                                           |
+                                                           | Exam Data
+                                                           v
+                                                       [D2: Exams]
+                                                           |
+                                                           | Exam ID
+                                                           v
+                    [Teacher] ----Add Questions----> [P3: Question Management]
+                                                           |
+                                                           | Question Data
+                                                           v
+                                                       [D3: Questions]
+                                                           |
+                                                           | Questions
+                                                           v
+                    [Student] ----Start Exam----> [P4: AI Proctoring]
+                                                           |
+                                                           | Video Frames
+                                                           v
+                                                    [AI Models]
+                                                           |
+                                                           | Detection Results
+                                                           v
+                                                       [P6: Violation Logging]
+                                                           |
+                                                           | Violation Data
+                                                           v
+                                                       [D4: CheatingLogs]
+                                                           |
+                                                           | Exam Answers
+                                                           v
+                    [Student] ----Submit Exam----> [P5: Result Processing]
+                                                           |
+                                                           | Result Data
+                                                           v
+                                                       [D5: Results]
+
+
+================================================================================
+6. CONTEXT FLOW DIAGRAM (CFD) - System Overview
+================================================================================
+
+                    ┌─────────────────────────────────────┐
+                    │                                     │
+                    │   AI-PROCTORED EXAM SYSTEM          │
+                    │                                     │
+                    │   ┌─────────────────────────────┐   │
+                    │   │  Authentication Module      │   │
+                    │   └─────────────────────────────┘   │
+                    │   ┌─────────────────────────────┐   │
+                    │   │  Exam Management Module     │   │
+                    │   └─────────────────────────────┘   │
+                    │   ┌─────────────────────────────┐   │
+                    │   │  AI Proctoring Module       │   │
+                    │   └─────────────────────────────┘   │
+                    │   ┌─────────────────────────────┐   │
+                    │   │  Result Processing Module   │   │
+                    │   └─────────────────────────────┘   │
+                    │                                     │
+                    └─────────────────────────────────────┘
+                              ^        ^        ^
+                              |        |        |
+        Login Data ───────────+        |        +────────── Exam Data
+        Exam Requests                   |                    Results
+        Answers                         |                    Violation Logs
+                                        |
+                                        |
+                            ┌───────────┴───────────┐
+                            │                       │
+                    [Student]                   [Teacher]
+                            │                       │
+                            │                       │
+                            └───────────┬───────────┘
+                                        |
+                                        v
+                            ┌───────────────────────┐
+                            │   MongoDB Database    │
+                            │   (Data Storage)      │
+                            └───────────────────────┘
+                                        ^
+                                        |
+                            ┌───────────┴───────────┐
+                            │                       │
+                    [BlazeFace Model]      [COCO-SSD Model]
+                    (Face Detection)      (Object Detection)
+
+
+================================================================================
+END OF FLOWCHARTS
+================================================================================
+

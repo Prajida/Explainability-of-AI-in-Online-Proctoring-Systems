@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import Result from "../models/resultModel.js";
 import Question from "../models/quesModel.js";
 import CodingQuestion from "../models/codingQuestionModel.js";
+import ExamAttempt from "../models/examAttemptModel.js";
 
 // @desc    Save exam result
 // @route   POST /api/results
@@ -43,8 +44,15 @@ const saveResult = asyncHandler(async (req, res) => {
     answers: new Map(Object.entries(answers)),
     totalMarks,
     percentage,
-    showToStudent: false, // Default to false, teacher can change this
+    showToStudent: false,
   });
+
+  // Mark attempt as completed
+  await ExamAttempt.findOneAndUpdate(
+    { examId, userId: req.user._id },
+    { $set: { completedAt: new Date() } },
+    { new: true }
+  );
 
   res.status(201).json({
     success: true,
@@ -100,6 +108,8 @@ const getResultsByExamId = asyncHandler(async (req, res) => {
 // @route   GET /api/results/user
 // @access  Private
 const getUserResults = asyncHandler(async (req, res) => {
+  const Exam = (await import("../models/examModel.js")).default;
+  
   const results = await Result.find({
     userId: req.user._id,
     showToStudent: true, // Only show results that are marked as visible
@@ -107,16 +117,50 @@ const getUserResults = asyncHandler(async (req, res) => {
     createdAt: -1,
   });
 
+  // Populate exam information for each result
+  const resultsWithExam = await Promise.all(
+    results.map(async (result) => {
+      const resultObj = result.toObject();
+      const examIdString = result.examId?.toString().trim();
+      
+      // Try to find exam by examId (UUID string)
+      let exam = await Exam.findOne({ examId: examIdString });
+      
+      // If not found, try finding by _id (in case examId was stored as ObjectId)
+      if (!exam && result.examId) {
+        try {
+          exam = await Exam.findById(result.examId);
+        } catch (e) {
+          // Not an ObjectId, continue
+        }
+      }
+      
+      // Always include exam name if exam is found
+      if (exam && exam.examName) {
+        resultObj.examId = { 
+          examName: exam.examName, 
+          examId: exam.examId,
+          _id: exam._id 
+        };
+      } else {
+        // If exam not found, keep original examId
+        resultObj.examId = examIdString;
+        console.log(`Warning: Exam not found for examId: ${examIdString}, resultId: ${result._id}`);
+      }
+      return resultObj;
+    })
+  );
+
   // Get coding submissions for each exam
   const resultsWithCoding = await Promise.all(
-    results.map(async (result) => {
+    resultsWithExam.map(async (result) => {
       const codingQuestions = await CodingQuestion.find({
-        examId: result.examId,
+        examId: typeof result.examId === 'object' ? result.examId.examId : result.examId,
         "submittedAnswer.userId": req.user._id,
       }).select("question submittedAnswer");
 
       return {
-        ...result.toObject(),
+        ...result,
         codingSubmissions: codingQuestions.map((q) => ({
           question: q.question,
           code: q.submittedAnswer.code,

@@ -6,10 +6,10 @@ const CHEATING_LOGS_URL = '/api/users';
 // Inject endpoints for the exam slice
 export const cheatingLogApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // Get cheating logs for a specific exam
+    // Get cheating logs for a specific exam (detailed view)
     getCheatingLogs: builder.query({
       query: (examId) => ({
-        url: `${CHEATING_LOGS_URL}/cheatingLogs/${examId}`,
+        url: `${CHEATING_LOGS_URL}/cheatingLogs/detailed/${examId}`,
         method: 'GET',
       }),
     }),

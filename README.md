@@ -1,180 +1,239 @@
-# ProctoAI-MERN
+# AI-Proctored System
 
-ProctoAI-MERN is an Automated Exam Proctoring System (AEPS) developed with cutting-edge AI-based algorithms for online exams. This comprehensive system is designed to ensure the integrity and security of online examinations. The project leverages technologies such as React.js, Redux, Node.js, and TensorFlow.js to offer a feature-rich exam proctoring solution.
+An intelligent online examination system with AI-powered proctoring capabilities to ensure academic integrity during remote assessments.
 
-![ProctoAI-MERN](readme-images/proctoai-mern.jpg)
+## 🎯 Overview
 
-## Table of Contents
+The AI-Proctored System is a full-stack web application that enables teachers to create and manage online exams while monitoring student behavior in real-time using advanced AI technologies. The system detects various forms of academic dishonesty including face detection violations, prohibited objects, browser tab switching, and unauthorized activities.
 
-- [Tech Stack](#tech-stack)
+## ✨ Features
 
-  - [Backend](#backend)
-  - [Frontend](#frontend)
+### For Teachers
+- **Exam Management**: Create, edit, and manage online examinations
+- **Question Management**: Add questions manually or import from PDF files
+- **Access Control**: Set access codes for exams
+- **Real-time Monitoring**: View cheating violation logs with timestamps and evidence
+- **Result Management**: View and manage student exam results
+- **Analytics Dashboard**: Track exam performance and violation statistics
 
-- [Current Functionality](#current-functionality)
-  - [User Authentication and Role Management](#user-authentication-and-role-management)
-  - [Teacher Capabilities](#teacher-capabilities)
-  - [Student Functionality](#student-functionality)
-  - [AI Exam Proctoring](#ai-exam-proctoring)
-- [Future Scope](#future-scope)
-  - [Candidate Verification](#candidate-verification)
-  - [Voice Recognition](#voice-recognition)
-  - [Secure Exam Environment](#secure-exam-environment)
-  - [Unified Portal](#unified-portal)
-- [Project Screenshots](#project-screenshots)
-  - [Login Page](#login-page)
-  - [Teacher Dashboard](#teacher-dashboard)
-  - [Exam Page](#exam-page)
-  - [Cheat Log Dashboard](#cheat-log-dashboard)
-- [How to Run](#how-to-run)
-- [Contributors](#contributors)
-- [License](#license)
+### For Students
+- **Secure Exam Taking**: Take exams with AI proctoring enabled
+- **Real-time Alerts**: Receive immediate notifications for any violations
+- **Result Viewing**: View exam results and scores after submission
+- **Access Code Verification**: Secure exam access through access codes
 
-## Tech Stack
+### AI Proctoring Features
+- **Face Detection**: Monitors student presence and detects multiple faces
+- **Object Detection**: Identifies prohibited objects (phones, books, etc.)
+- **Browser Monitoring**: Tracks tab switching, copy/paste, and right-click events
+- **Voice Detection**: Monitors for unusual sounds or second person presence
+- **Screenshot Capture**: Automatically captures evidence of violations
+- **Real-time Violation Logging**: Records all violations with metadata
 
-ProctoAI-MERN utilizes a range of technologies to provide its comprehensive functionality. The key technologies and dependencies used in this project include:
-
-### Backend
-
-- **Node.js:** A JavaScript runtime for server-side development.
-- **Express:** A minimal and flexible Node.js web application framework.
-- **MongoDB:** A NoSQL database for storing user data.
-- **Mongoose:** An elegant MongoDB object modeling tool.
-- **JSON Web Tokens (JWT):** Used for secure authentication and authorization.
-- **bcryptjs:** A library for securely hashing passwords.
-- **Express-Async-Handler:** Middleware to handle exceptions in asynchronous route handlers.
+## 🛠️ Technology Stack
 
 ### Frontend
+- **React 18.2.0**: UI framework
+- **Material-UI (MUI)**: Component library
+- **Redux Toolkit**: State management
+- **TensorFlow.js**: AI model integration
+- **MediaPipe**: Face detection
+- **COCO-SSD**: Object detection
+- **React Router**: Navigation
+- **Axios**: HTTP client
 
-- **React:** A JavaScript library for building user interfaces.
-- **Redux Toolkit:** A library for state management in React applications.
-- **TensorFlow.js:** An open-source machine learning framework for web-based applications.
-- **Material-UI:** A popular React UI framework.
-- **React-Router:** A routing library for React applications.
-- **React-Toastify:** Used for displaying notifications.
-- **React-Webcam:** A React component for capturing video from the user's webcam.
-- **Yup:** A JavaScript schema builder for value parsing and validation.
-- **Formik:** A library for building forms in React with form validation.
-- **SweetAlert:** A JavaScript library for creating beautiful and responsive alert messages.
+### Backend
+- **Node.js**: Runtime environment
+- **Express.js**: Web framework
+- **MongoDB**: Database
+- **Mongoose**: ODM
+- **JWT**: Authentication
+- **bcryptjs**: Password hashing
+- **PDF-Parse**: PDF question import
+- **Multer**: File upload handling
 
-## Current Functionality
+## 📋 Prerequisites
 
-### User Authentication and Role Management
+Before running this project, ensure you have the following installed:
+- Node.js (v14 or higher)
+- npm or yarn
+- MongoDB (local or cloud instance)
+- Python 3.x (for code execution feature)
 
-- Students and teachers can log in with separate roles and permissions.
-- Secure authentication and authorization for user accounts.
+## 🚀 Installation
 
-### Teacher Capabilities
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/shreeram312/AI-Proctored-System.git
+   cd AI-Proctored-System
+   ```
 
-- Teachers can create exams and define questions.
-- Exam management for teachers, including question creation and configuration.
+2. **Install root dependencies**
+   ```bash
+   npm install
+   ```
 
-### Student Functionality
+3. **Install backend dependencies**
+   ```bash
+   cd backend
+   npm install
+   ```
 
-- Students can view available exams and participate in them.
-- The test page displays questions and a timer with an auto-submit feature.
+4. **Install frontend dependencies**
+   ```bash
+   cd ../frontend
+   npm install
+   ```
 
-### AI Exam Proctoring
+5. **Configure environment variables**
 
-- Real-time AI proctoring of students during exams.
-- AI checks for cheating behaviors, such as mobile phone detection, multiple faces detection, and absence of detected faces.
-- Cheating incidents are logged and viewable by teachers in their dashboard.
+   Create a `.env` file in the `backend` directory:
+   ```env
+   NODE_ENV=development
+   PORT=5000
+   MONGO_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret_key
+   ```
 
-## Future Scope
+6. **Start the development servers**
 
-### Candidate Verification
+   From the root directory:
+   ```bash
+   npm run dev
+   ```
 
-- Real-time candidate identity verification through image capture and matching with registered candidates.
+   Or run separately:
+   ```bash
+   # Terminal 1 - Backend
+   cd backend
+   npm run dev
 
-### Voice Recognition
+   # Terminal 2 - Frontend
+   cd frontend
+   npm start
+   ```
 
-- Utilization of voice recognition technology to monitor and identify voice anomalies during online exams, identifying potential malpractice.
+## 📁 Project Structure
 
-### Secure Exam Environment
+```
+AI-Proctored-System/
+├── backend/
+│   ├── config/          # Database configuration
+│   ├── controllers/      # Route controllers
+│   ├── middleware/       # Authentication & error middleware
+│   ├── models/           # MongoDB models
+│   ├── routes/           # API routes
+│   ├── utils/            # Utility functions
+│   └── server.js         # Express server
+├── frontend/
+│   ├── public/           # Static files
+│   └── src/
+│       ├── components/   # Reusable components
+│       ├── context/      # React context
+│       ├── layouts/      # Layout components
+│       ├── routes/       # Route configuration
+│       ├── slices/       # Redux slices
+│       ├── views/        # Page components
+│       └── App.js        # Main app component
+└── README.md
+```
 
-- Preventing candidates from opening or accessing unauthorized applications on their desktop or mobile devices during the online exam.
+## 🔐 Authentication
 
-### Unified Portal
+The system uses JWT (JSON Web Tokens) for authentication. Users must register/login to access the system. There are two user roles:
+- **Teacher**: Can create exams, manage questions, and view violation logs
+- **Student**: Can take exams and view results
 
-- Creation of a unified portal for users to log in, access question papers, open a chat window for communication with the examiner, and upload answer sheets via an integrated scanner within the portal.
+## 📊 Database Models
 
-## Project Screenshots
+- **User**: Stores user credentials and role information
+- **Exam**: Stores exam details, access codes, and settings
+- **Question**: Stores exam questions (multiple choice)
+- **CheatingLog**: Stores violation records with timestamps and evidence
+- **Result**: Stores exam results and scores
+- **ExamAttempt**: Tracks student exam attempts
 
-### Login Page
+## 🎥 AI Proctoring Workflow
 
-- #### Student
+1. Student starts an exam
+2. Webcam and AI models are initialized
+3. Continuous frame processing begins
+4. Multiple detection systems run in parallel:
+   - Face detection (BlazeFace)
+   - Object detection (COCO-SSD)
+   - Browser event monitoring
+   - Voice detection
+5. Violations are logged with screenshots
+6. Real-time alerts are sent to students
+7. All data is stored in the database
 
-![Login Page](readme-images/login-page-student.jpg)
+## 🔒 Security Features
 
-- #### Teacher
+- Password hashing with bcrypt
+- JWT token-based authentication
+- CORS configuration
+- Secure cookie handling
+- Browser security restrictions during exams
+- Access code verification
 
-![Login Page](readme-images/login-page-teacher.jpg)
+## 📝 API Endpoints
 
-### Dashboard
+### Authentication
+- `POST /api/users/register` - Register new user
+- `POST /api/users/login` - User login
+- `POST /api/users/logout` - User logout
+- `GET /api/users/profile` - Get user profile
 
-- #### Student
+### Exams
+- `GET /api/exams` - Get all exams
+- `POST /api/exams` - Create new exam
+- `GET /api/exams/:id` - Get exam details
+- `PUT /api/exams/:id` - Update exam
+- `DELETE /api/exams/:id` - Delete exam
 
-![Student Dashboard](readme-images/student-dashboard.jpg)
+### Questions
+- `GET /api/questions/exam/:examId` - Get questions for exam
+- `POST /api/questions` - Add question
+- `PUT /api/questions/:id` - Update question
+- `DELETE /api/questions/:id` - Delete question
 
-- #### Teacher
+### Results
+- `POST /api/results` - Submit exam result
+- `GET /api/results/exam/:examId` - Get results for exam
+- `GET /api/results/student/:studentId` - Get student results
 
-![Teacher Dashboard](readme-images/teacher-dashboard.jpg)
+### Cheating Logs
+- `POST /api/cheating-logs` - Log violation
+- `GET /api/cheating-logs/exam/:examId` - Get violations for exam
+- `GET /api/cheating-logs/student/:studentId` - Get student violations
 
-### Creating Exam Feature
+## 🌐 Deployment
 
-- #### Create Exam
+The frontend is configured for deployment on Vercel. The backend can be deployed on platforms like:
+- Heroku
+- Railway
+- AWS
+- DigitalOcean
 
-![Create Exam](readme-images/create-exam.jpg)
+Make sure to update CORS settings and environment variables for production.
 
-- #### Success
+## 📄 License
 
-![Create Exam](readme-images/create-exam-success.jpg)
+This project is licensed under the ISC License.
 
-- #### Create Questions
+## 👥 Contributors
 
-![Create Questions](readme-images/create-question.jpg)
+- [Your Name/Team]
 
-### Exam Page
+## 📞 Support
 
-![Exam Page](readme-images/exam-page.png)
+For issues and questions, please open an issue on the GitHub repository.
 
-### Cheating Detection During Exam
+## 🔄 Version History
 
-- Webcam capture is hidden due to privacy reasons, with a black box covering the video feed.
+- **v1.0.0** - Initial release with core AI proctoring features
 
-#### Cell Phone Detection
+---
 
-![Cell Phone Detection](readme-images/cell-phone-detection.png)
+**Note**: This system is designed for educational purposes. Ensure compliance with privacy laws and regulations when implementing in production environments.
 
-#### Prohibited Object Detection
-
-![Prohibited Object Detection](readme-images/prohibited-object-detection.jpg)
-
-#### Face Not Visible Detection
-
-![Cell Phone Detection](readme-images/face-not-visible-detection.jpg)
-
-### Test Page
-
-#### Start
-
-![Test Start](readme-images/test-start.jpg)
-
-#### Submitted
-
-![Test Submitted](readme-images/test-submitted.jpg)
-
-### Cheat Log Dashboard
-
-![Cheat Log Dashboard](readme-images/cheat-log-dashboard.png)
-
-More features and improvements are in development and will be included in future updates.
-
-## How to Run
-
-To run this project locally, follow these steps:
-
-1. Clone this repository.
-2. Install the required dependencies in both the frontend and backend folders.
-3. Start the server using `npm start` in the backend folder.
-4. Start the React app using `npm start` in the frontend folder.

@@ -3,18 +3,12 @@ import {
   Box,
   Typography,
   Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Stack,
 } from '@mui/material';
 import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';
-import CodingQuestionForm from './CodingQuestionForm';
 
 const CreateExam = ({ formik, title, subtitle, subtext }) => {
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit } = formik;
+  const { values, errors, touched, handleChange, handleSubmit } = formik;
 
   return (
     <>
@@ -105,7 +99,20 @@ const CreateExam = ({ formik, title, subtitle, subtext }) => {
           />
         </Stack>
 
-        <CodingQuestionForm formik={formik} />
+        <Stack mb={3}>
+          <CustomTextField
+            id="examCode"
+            name="examCode"
+            label="Exam Access Code (Optional)"
+            variant="outlined"
+            fullWidth
+            value={values.examCode}
+            onChange={handleChange}
+            error={touched.examCode && Boolean(errors.examCode)}
+            helperText={touched.examCode ? errors.examCode : "Leave empty to make exam public (no code required)"}
+            placeholder="e.g., CS1012025"
+          />
+        </Stack>
 
         <Button
           color="primary"

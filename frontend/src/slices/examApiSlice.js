@@ -12,6 +12,13 @@ export const examApiSlice = apiSlice.injectEndpoints({
         url: `${EXAMS_URL}/exam`,
         method: 'GET',
       }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((exam) => ({ type: 'Exam', id: exam.examId || exam._id })),
+              { type: 'Exam', id: 'LIST' },
+            ]
+          : [{ type: 'Exam', id: 'LIST' }],
     }),
     // Create a new exam
     createExam: builder.mutation({
@@ -20,6 +27,7 @@ export const examApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: [{ type: 'Exam', id: 'LIST' }],
     }),
     // Get questions for a specific exam
     getQuestions: builder.query({
@@ -36,6 +44,22 @@ export const examApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    // Create bulk questions
+    createBulkQuestions: builder.mutation({
+      query: (data) => ({
+        url: `${EXAMS_URL}/exam/questions/bulk`,
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    // Upload and parse PDF
+    uploadPDF: builder.mutation({
+      query: (formData) => ({
+        url: `${EXAMS_URL}/exam/upload-pdf`,
+        method: 'POST',
+        body: formData,
+      }),
+    }),
 
     //Delete an exam
     deleteExam: builder.mutation({
@@ -43,6 +67,18 @@ export const examApiSlice = apiSlice.injectEndpoints({
         url: `${EXAMS_URL}/exam/${examId}`,
         method: 'POST',
         credentials: 'include',
+      }),
+      invalidatesTags: (_res, _err, examId) => [
+        { type: 'Exam', id: examId },
+        { type: 'Exam', id: 'LIST' },
+      ],
+    }),
+    // Verify exam access code
+    verifyExamCode: builder.mutation({
+      query: ({ examId, examCode }) => ({
+        url: `${EXAMS_URL}/exam/${examId}/verify-code`,
+        method: 'POST',
+        body: { examCode },
       }),
     }),
   }),
@@ -54,5 +90,8 @@ export const {
   useCreateExamMutation,
   useGetQuestionsQuery,
   useCreateQuestionMutation,
+  useCreateBulkQuestionsMutation,
+  useUploadPDFMutation,
   useDeleteExamMutation,
+  useVerifyExamCodeMutation,
 } = examApiSlice;

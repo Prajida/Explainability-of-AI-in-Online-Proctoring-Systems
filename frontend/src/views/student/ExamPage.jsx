@@ -6,8 +6,8 @@ import Exams from './Components/Exams';
 
 const ExamPage = () => {
   return (
-    <PageContainer title="Exam Page" description="Active Exams">
-      <DashboardCard title="All Active Exams">
+    <PageContainer title="Exam Page" description="All Exams">
+      <DashboardCard title="All Exams">
         <Exams />
       </DashboardCard>
     </PageContainer>

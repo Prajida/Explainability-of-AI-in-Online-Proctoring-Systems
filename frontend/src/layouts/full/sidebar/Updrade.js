@@ -12,15 +12,15 @@ export const Upgrade = () => {
         >
             <>
                 <Box>
-                    <Typography variant="h6" mb={1}>Unlimited Access</Typography>
-                    <Button color="primary" target="_blank" href="https://adminmart.com/product/modernize-react-mui-dashboard-template/" variant="contained" aria-label="logout" size="small">
-                        Upgrade
+                    <Typography variant="h6" mb={1}>AI_Evalu8 Pro</Typography>
+                    <Button color="primary" target="_blank" href="https://github.com/your-repo/AI_Evalu8" variant="contained" aria-label="upgrade" size="small">
+                        Learn More
                     </Button>
                 </Box>
                 <Box mt="-35px">
-                    <img alt="Remy Sharp" src={img1} width={100} />
+                    <img alt="AI_Evalu8" src={img1} width={100} />
                 </Box>
             </>
         </Box>
-    );
+    
 };

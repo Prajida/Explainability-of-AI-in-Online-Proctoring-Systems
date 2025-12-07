@@ -18,10 +18,6 @@ import {
   Alert,
   Tabs,
   Tab,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Button,
   TextField,
   InputAdornment,
@@ -30,14 +26,12 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { Code, Visibility, VisibilityOff, Search, CheckCircle } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Search } from '@mui/icons-material';
 import PageContainer from 'src/components/container/PageContainer';
 import DashboardCard from '../../components/shared/DashboardCard';
 import axiosInstance from '../../axios';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 const ResultPage = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -45,8 +39,6 @@ const ResultPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedResult, setSelectedResult] = useState(null);
-  const [codeDialogOpen, setCodeDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedExam, setSelectedExam] = useState('all');
   const [exams, setExams] = useState([]);
@@ -106,10 +98,6 @@ const ResultPage = () => {
     }
   };
 
-  const handleViewCode = (result) => {
-    setSelectedResult(result);
-    setCodeDialogOpen(true);
-  };
 
   const handleExamChange = async (examId) => {
     setSelectedExam(examId);
@@ -186,10 +174,12 @@ const ResultPage = () => {
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Total Submissions
+                  Best Score
                 </Typography>
                 <Typography variant="h3">
-                  {results.reduce((acc, curr) => acc + (curr.codingSubmissions?.length || 0), 0)}
+                  {results.length > 0
+                    ? `${Math.max(...results.map((r) => r.percentage)).toFixed(1)}%`
+                    : '0%'}
                 </Typography>
               </CardContent>
             </Card>
@@ -203,16 +193,41 @@ const ResultPage = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Exam Name</TableCell>
-                      <TableCell>MCQ Score</TableCell>
-                      <TableCell>Coding Submissions</TableCell>
-                      <TableCell>Total Score</TableCell>
+                      <TableCell>Score</TableCell>
+                      <TableCell>Total Marks</TableCell>
                       <TableCell>Submission Date</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {results.map((result) => (
+                    {results.map((result) => {
+                      // Get exam name - prioritize populated examId object from backend
+                      let examName = 'Exam'; // Default fallback
+                      
+                      if (typeof result.examId === 'object' && result.examId?.examName) {
+                        // Backend populated the exam name
+                        examName = result.examId.examName;
+                      } else {
+                        // Try to find in exams array
+                        const resultExamId = typeof result.examId === 'object' 
+                          ? (result.examId.examId || result.examId._id) 
+                          : result.examId;
+                        
+                        const foundExam = exams.find(e => 
+                          e.examId === resultExamId || 
+                          e._id === resultExamId ||
+                          e._id?.toString() === resultExamId?.toString()
+                        );
+                        
+                        if (foundExam?.examName) {
+                          examName = foundExam.examName;
+                        } else {
+                          console.warn('Exam name not found for result:', result._id, 'examId:', resultExamId);
+                        }
+                      }
+                      
+                      return (
                       <TableRow key={result._id}>
-                        <TableCell>{result.examId?.examName || 'Exam'}</TableCell>
+                        <TableCell>{examName}</TableCell>
                         <TableCell>
                           <Chip
                             label={`${result.percentage.toFixed(1)}%`}
@@ -220,25 +235,14 @@ const ResultPage = () => {
                           />
                         </TableCell>
                         <TableCell>
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <CheckCircle color="success" fontSize="small" />
-                          </Box>
-                        </TableCell>
-                        <TableCell>
                           <Typography variant="body2" color="textSecondary">
-                            Total: {result.totalMarks}
+                            {result.totalMarks}
                           </Typography>
                         </TableCell>
                         <TableCell>{new Date(result.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          {result.codingSubmissions?.length > 0 && (
-                            <IconButton onClick={() => handleViewCode(result)}>
-                              <Code />
-                            </IconButton>
-                          )}
-                        </TableCell>
                       </TableRow>
-                    ))}
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -246,39 +250,6 @@ const ResultPage = () => {
           </Grid>
         </Grid>
 
-        {/* Code View Dialog */}
-        <Dialog
-          open={codeDialogOpen}
-          onClose={() => setCodeDialogOpen(false)}
-          maxWidth="md"
-          fullWidth
-        >
-          <DialogTitle>My Code Submissions</DialogTitle>
-          <DialogContent>
-            {selectedResult?.codingSubmissions?.map((submission, index) => (
-              <Box key={index} mb={3}>
-                <Typography variant="h6" gutterBottom>
-                  Question {index + 1}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" gutterBottom>
-                  Language: {submission.language}
-                </Typography>
-                <SyntaxHighlighter language={submission.language} style={docco}>
-                  {submission.code}
-                </SyntaxHighlighter>
-                <Box mt={1}>
-                  <Chip icon={<CheckCircle />} label="Success" color="success" />
-                  {submission.executionTime && (
-                    <Chip label={`Execution Time: ${submission.executionTime}ms`} sx={{ ml: 1 }} />
-                  )}
-                </Box>
-              </Box>
-            ))}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setCodeDialogOpen(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
       </PageContainer>
     );
   }
@@ -319,13 +290,16 @@ const ResultPage = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Total Submissions
+                Pass Rate
               </Typography>
               <Typography variant="h3">
-                {filteredResults.reduce(
-                  (acc, curr) => acc + (curr.codingSubmissions?.length || 0),
-                  0,
-                )}
+                {filteredResults.length > 0
+                  ? `${(
+                      (filteredResults.filter((r) => r.percentage >= 70).length /
+                        filteredResults.length) *
+                      100
+                    ).toFixed(1)}%`
+                  : '0%'}
               </Typography>
             </CardContent>
           </Card>
@@ -374,7 +348,6 @@ const ResultPage = () => {
             >
               <Tab label="All Results" />
               <Tab label="MCQ Results" />
-              <Tab label="Coding Results" />
             </Tabs>
 
             <TableContainer component={Paper}>
@@ -385,7 +358,6 @@ const ResultPage = () => {
                     <TableCell>Email</TableCell>
                     <TableCell>Exam</TableCell>
                     <TableCell>MCQ Score</TableCell>
-                    <TableCell>Coding Submissions</TableCell>
                     <TableCell>Total Score</TableCell>
                     <TableCell>Submission Date</TableCell>
                     <TableCell>Actions</TableCell>
@@ -404,11 +376,6 @@ const ResultPage = () => {
                           label={`${result.percentage.toFixed(1)}%`}
                           color={result.percentage >= 70 ? 'success' : 'warning'}
                         />
-                      </TableCell>
-                      <TableCell>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <CheckCircle color="success" fontSize="small" />
-                        </Box>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" color="textSecondary">
@@ -433,39 +400,6 @@ const ResultPage = () => {
         </Grid>
       </Grid>
 
-      {/* Code View Dialog */}
-      <Dialog
-        open={codeDialogOpen}
-        onClose={() => setCodeDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Student Code Submissions</DialogTitle>
-        <DialogContent>
-          {selectedResult?.codingSubmissions?.map((submission, index) => (
-            <Box key={index} mb={3}>
-              <Typography variant="h6" gutterBottom>
-                Question {index + 1}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-                Language: {submission.language}
-              </Typography>
-              <SyntaxHighlighter language={submission.language} style={docco}>
-                {submission.code}
-              </SyntaxHighlighter>
-              <Box mt={1}>
-                <Chip icon={<CheckCircle />} label="Success" color="success" />
-                {submission.executionTime && (
-                  <Chip label={`Execution Time: ${submission.executionTime}ms`} sx={{ ml: 1 }} />
-                )}
-              </Box>
-            </Box>
-          ))}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCodeDialogOpen(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
     </PageContainer>
   );
 };

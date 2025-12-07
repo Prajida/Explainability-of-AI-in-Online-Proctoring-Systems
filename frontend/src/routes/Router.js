@@ -12,7 +12,6 @@ const ExamLayout = Loadable(lazy(() => import('../layouts/full/ExamLayout')));
 // const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Success = Loadable(lazy(() => import('../views/Success')));
-
 // const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 // const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
 // const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')));
@@ -21,9 +20,7 @@ const Success = Loadable(lazy(() => import('../views/Success')));
 const TestPage = Loadable(lazy(() => import('./../views/student/TestPage')));
 const ExamPage = Loadable(lazy(() => import('./../views/student/ExamPage')));
 const ExamDetails = Loadable(lazy(() => import('./../views/student/ExamDetails')));
-const CodeDetails = Loadable(lazy(() => import('../views/student/CodeDetails')));
 const ResultPage = Loadable(lazy(() => import('./../views/student/ResultPage')));
-const Coder = Loadable(lazy(() => import('../views/student/Coder')));
 //Auth Routes
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
@@ -60,25 +57,21 @@ const Router = createBrowserRouter(
         </Route>
         <Route path="/" element={<ExamLayout />}>
           <Route path="exam/:examId" exact={true} element={<ExamDetails />} />
-          <Route path="exam/:examId/codedetails" exact={true} element={<CodeDetails />} />
           <Route path="exam/:examId/:testId" exact={true} element={<TestPage />} />
-          <Route path="exam/:examId/code" exact={true} element={<Coder />} />
         </Route>
       </Route>
       {/* User layout */}
       <Route path="/user" element={<FullLayout />}>
         <Route path="account" exact={true} element={<UserAccount />} />
       </Route>
-
-      {/* Authentication layout */}
+      {/* Auth Routes */}
       <Route path="/auth" element={<BlankLayout />}>
-        <Route path="404" element={<Error />} />
-        <Route path="/auth/register" element={<Register />} />
-        <Route path="/auth/login" element={<Login />} />
-        {/* <Route path="*" element={<Navigate to="/auth/404" />} /> */}
+        <Route path="login" exact={true} element={<Login />} />
+        <Route path="register" exact={true} element={<Register />} />
       </Route>
-    </>,
-  ),
+      <Route path="*" element={<Error />} />
+    </>
+  )
 );
 
 export default Router;
